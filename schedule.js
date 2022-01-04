@@ -116,12 +116,13 @@ function generateSchedule(golfers, schedule, course) {
 	let currTime = schedule.startTime;
 	let interval = course.interval;
 	let group = { teeTime: currTime };
+	let initialLength = golfersArray.length;
 	let groupNum = 0;
 
-	for (let i = 0; i < golfersArray.length; i++) {
+	for (let i = 0; i < initialLength - 1; i++) {
+		console.log(golfersArray);
 		if (!golfersArray[i].teeTime) {
 			if (groupNum === 0) {
-				console.log(golfersArray[i]);
 				group.golferOne = golfersArray[i];
 				golfersArray.splice(i, 1);
 				groupNum++;
@@ -151,10 +152,10 @@ function generateSchedule(golfers, schedule, course) {
 				console.log(currTime);
 				group.teeTime = currTime;
 				groupNum = 0;
+				console.log('reset');
 			}
 		}
 	}
-
 	console.log(teeTimes);
 
 	return teeTimes;
