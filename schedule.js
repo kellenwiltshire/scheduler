@@ -79,7 +79,7 @@ const golfers = [
 
 const schedule = { startTime: '16:00:00' };
 
-const course = { interval: `00:07:00` };
+const course = { interval: `00:07:00`, maxSlots: 12 };
 
 const randomizeGolfers = (golfers) => {
 	let currentIndex = golfers.length,
@@ -172,45 +172,47 @@ const filterArray = (arr1, arr2) => {
 generateSchedule(golfers, schedule, course);
 
 function generateSchedule(golfers, schedule, course) {
+	//Deterime Max Golfers
+	const maxGolfers = course.maxSlots * 4;
+
+	//Create initial Variables
+	const initialGolfers = golfers;
+	const initialStartTime = schedule.startTime;
+	const interval = course.interval;
+
+	//Create the Waiting List and Usuable Golfers Array
 	let waitingList = [];
-	let golfersArray = [];
-	if (golfers.length > 48) {
-		while (golfers.length > 48) {
-			waitingList.push(golfers[golfers.length - 1]);
-			golfers.pop();
-		}
-		golfersArray = randomizeGolfers(golfers);
-	} else {
-		golfersArray = randomizeGolfers(golfers);
-	}
+	let usableGolfers = [];
 
-	console.log(golfersArray);
-	console.log(waitingList);
+	//Create Final Array to be filled
+	let finalTeeTimeArray = [];
 
-	let teeTimes = [];
-	let currTime = schedule.startTime;
-	let interval = course.interval;
+	//More initial variables to be filled and changed
+	let currTime = initialStartTime;
 	let group = { teeTime: currTime, golfers: [] };
 	let groupNum = 0;
 
+	//Trim the list of golfers if there is more than the max number of golfers
+	if (initialGolfers.length > maxGolfers) {
+		while (initialGolfers.length > maxGolfers) {
+			waitingList.push(initialGolfers[golfers.length - 1]);
+			initialGolfers.pop();
+		}
+		usableGolfers = randomizeGolfers(golfers);
+	} else {
+		usableGolfers = randomizeGolfers(golfers);
+	}
+
+	//Make a first pass of the golfers to filter out those with a tee time restriction
 	let teeTimeRestrictions = [];
 	let unrestrictedGolfers = [];
-
-	let newGolferArray = [];
-
-	let timeTestPassed = false;
-
-	golfersArray.forEach((golfer) => {
-		if (golfer.teeTime) {
-			teeTimeRestrictions.push(golfer);
-		} else {
-			unrestrictedGolfers.push(golfer);
-		}
+	usableGolfers.forEach((golfer) => {
+		golfer.teeTime ? teeTimeRestrictions.push(golfer) : unrestrictedGolfers.push(golfer);
 	});
 
-	console.log('Tee Time: ', teeTimeRestrictions);
-	console.log('Unrestricted: ', unrestrictedGolfers);
-
+	//Start filling a new Golfer Array with unrestricted golfers until it passes the time restriction
+	let timeTestPassed = false;
+	let newGolferArray = [];
 	unrestrictedGolfers.forEach((golfer, i) => {
 		if (!timeTestPassed) {
 			if (groupNum < 3) {
@@ -226,6 +228,7 @@ function generateSchedule(golfers, schedule, course) {
 				if (timeTest) {
 					timeTestPassed = true;
 					console.log('It is Passed 4:30');
+					//Once it is passed the time restriction of 4:30 combine the rest of the unrestricted golfers and restricted golfers, then randomize. Then add this one the end of the already scheduled golfers
 					const combineArray = teeTimeRestrictions.concat(unrestrictedGolfers);
 					console.log('Combine Array: ', combineArray);
 					const filteredArray = filterArray(combineArray, newGolferArray);
@@ -241,30 +244,30 @@ function generateSchedule(golfers, schedule, course) {
 
 	console.log('New Golfer Array: ', newGolferArray);
 
+	//Reset the variables
 	groupNum = 0;
 	currTime = schedule.startTime;
 
-	console.log('Length: ', newGolferArray.length);
-
+	//Finally iterate through the golfer array and place them in their tee time slots.
 	newGolferArray.forEach((golfer, i) => {
 		if (groupNum < 3) {
 			group.golfers.push(golfer);
 			groupNum++;
 			if (i === newGolferArray.length - 1) {
-				teeTimes.push(group);
+				finalTeeTimeArray.push(group);
 			}
 		} else {
 			group.golfers.push(golfer);
 			currTime = addTimeInterval(currTime, interval);
 			console.log(currTime);
-			teeTimes.push(group);
+			finalTeeTimeArray.push(group);
 			group = { teeTime: currTime, golfers: [] };
 			groupNum = 0;
 			console.log('reset');
 		}
 	});
 
-	console.log('Tee times: ', teeTimes);
+	console.log('Tee times: ', finalTeeTimeArray);
 
-	return teeTimes;
+	// return teeTimes;
 }
