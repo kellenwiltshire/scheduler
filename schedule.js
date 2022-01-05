@@ -23,12 +23,13 @@ GolferFour: NAME
 
 */
 
+//Need to expand this to 48 (max number of golfers)
 const golfers = [
 	{ name: 'Player One', carpool: '', teeTime: false },
 	{ name: 'Player Two', carpool: 'Player Nine', teeTime: false },
 	{ name: 'Player Three', carpool: '', teeTime: false },
 	{ name: 'Player Four', carpool: '', teeTime: true },
-	{ name: 'Player Five', carpool: 'Player Five', teeTime: false },
+	{ name: 'Player Five', carpool: 'Player Thirteen', teeTime: false },
 	{ name: 'Player Six', carpool: '', teeTime: false },
 	{ name: 'Player Seven', carpool: '', teeTime: false },
 	{ name: 'Player Eight', carpool: '', teeTime: false },
@@ -112,6 +113,8 @@ generateSchedule(golfers, schedule, course);
 function generateSchedule(golfers, schedule, course) {
 	const golfersArray = randomizeGolfers(golfers);
 
+	console.log(golfersArray);
+
 	let teeTimes = [];
 	let currTime = schedule.startTime;
 	let interval = course.interval;
@@ -119,43 +122,88 @@ function generateSchedule(golfers, schedule, course) {
 	let initialLength = golfersArray.length;
 	let groupNum = 0;
 
-	for (let i = 0; i < initialLength - 1; i++) {
-		console.log(golfersArray);
-		if (!golfersArray[i].teeTime) {
+	golfersArray.forEach((golfer, i) => {
+		console.log('Golfer: ', golfer);
+		if (golfer.teeTime) {
+			console.log('Tee Time Restriction');
+			//Removes that golfer for now
+			// golfersArray.splice(i, 1);
+		} else {
 			if (groupNum === 0) {
-				group.golferOne = golfersArray[i];
-				golfersArray.splice(i, 1);
+				group.golferOne = golfer;
+				// golfersArray.splice(i, 1);
 				groupNum++;
 				if (i === golfersArray.length) {
 					teeTimes.push(group);
 				}
 			} else if (groupNum === 1) {
-				group.golferTwo = golfersArray[i];
-				golfersArray.splice(i, 1);
+				group.golferTwo = golfer;
+				// golfersArray.splice(i, 1);
 				groupNum++;
 				if (i === golfersArray.length) {
 					teeTimes.push(group);
 				}
 			} else if (groupNum === 2) {
-				group.golferThree = golfersArray[i];
-				golfersArray.splice(i, 1);
+				group.golferThree = golfer;
+				// golfersArray.splice(i, 1);
 				groupNum++;
 				if (i === golfersArray.length) {
 					teeTimes.push(group);
 				}
 			} else if (groupNum === 3) {
-				group.golferFour = golfersArray[i];
-				golfersArray.splice(i, 1);
+				group.golferFour = golfer;
+				// golfersArray.splice(i, 1);
 				teeTimes.push(group);
-				group = {};
 				currTime = addTimeInterval(currTime, interval);
 				console.log(currTime);
-				group.teeTime = currTime;
+				group = { teeTime: currTime };
 				groupNum = 0;
 				console.log('reset');
 			}
 		}
-	}
+	});
+
+	// while (let i = 0; i < initialLength; i++) {
+	// 	console.log('Golfer: ', golfersArray[i]);
+	// 	if (golfersArray[i].teeTime) {
+	// 		console.log('Tee Time Restriction');
+	// 		//Removes that golfer for now
+	// 		golfersArray.splice(i, 1);
+	// 	} else {
+	// 		if (groupNum === 0) {
+	// 			group.golferOne = golfersArray[i];
+	// 			golfersArray.splice(i, 1);
+	// 			groupNum++;
+	// 			if (i === golfersArray.length) {
+	// 				teeTimes.push(group);
+	// 			}
+	// 		} else if (groupNum === 1) {
+	// 			group.golferTwo = golfersArray[i];
+	// 			golfersArray.splice(i, 1);
+	// 			groupNum++;
+	// 			if (i === golfersArray.length) {
+	// 				teeTimes.push(group);
+	// 			}
+	// 		} else if (groupNum === 2) {
+	// 			group.golferThree = golfersArray[i];
+	// 			golfersArray.splice(i, 1);
+	// 			groupNum++;
+	// 			if (i === golfersArray.length) {
+	// 				teeTimes.push(group);
+	// 			}
+	// 		} else if (groupNum === 3) {
+	// 			group.golferFour = golfersArray[i];
+	// 			golfersArray.splice(i, 1);
+	// 			teeTimes.push(group);
+	// 			currTime = addTimeInterval(currTime, interval);
+	// 			console.log(currTime);
+	// 			group = { teeTime: currTime };
+	// 			groupNum = 0;
+	// 			console.log('reset');
+	// 		}
+	// 	}
+
+	// }
 	console.log(teeTimes);
 
 	return teeTimes;
