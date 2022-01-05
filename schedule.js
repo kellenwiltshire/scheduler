@@ -41,7 +41,7 @@ const golfers = [
 	{ name: 'Player Fourteen', carpool: '', teeTime: false },
 ];
 
-const schedule = { startTime: '16:00:00' };
+const schedule = { startTime: '16:29:00' };
 
 const course = { interval: `00:07:00` };
 
@@ -108,6 +108,33 @@ const addTimeInterval = (currTime, interval) => {
 	);
 };
 
+const testTime = (time) => {
+	let times = [0, 0, 0];
+	let max = times.length;
+
+	let a = time.split(':');
+
+	//normalize values
+	for (let i = 0; i < max; i++) {
+		a[i] = isNaN(parseInt(a[i])) ? 0 : parseInt(a[i]);
+	}
+
+	//store values
+	for (let i = 0; i < max; i++) {
+		times[i] = a[i];
+	}
+
+	let hours = times[0];
+	let minutes = times[1];
+	let seconds = times[2];
+
+	if (hours >= 16 && minutes >= 30) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
 generateSchedule(golfers, schedule, course);
 
 function generateSchedule(golfers, schedule, course) {
@@ -119,35 +146,49 @@ function generateSchedule(golfers, schedule, course) {
 	let currTime = schedule.startTime;
 	let interval = course.interval;
 	let group = { teeTime: currTime };
-	let initialLength = golfersArray.length;
 	let groupNum = 0;
 
-	golfersArray.forEach((golfer, i) => {
-		console.log('Golfer: ', golfer);
+	let teeTimeRestrictions = [];
+	let carpoolRestrictions = [];
+	let unrestrictedGolfers = [];
+
+	let timeTestPassed = false;
+
+	golfersArray.forEach((golfer) => {
 		if (golfer.teeTime) {
-			console.log('Tee Time Restriction');
-			//Removes that golfer for now
-			// golfersArray.splice(i, 1);
+			teeTimeRestrictions.push(golfer);
+		} else if (golfer.carpool) {
+			carpoolRestrictions.push(golfer);
 		} else {
+			unrestrictedGolfers.push(golfer);
+		}
+	});
+
+	console.log('Tee Time: ', teeTimeRestrictions);
+	console.log('carpool: ', carpoolRestrictions);
+	console.log('Unrestricted: ', unrestrictedGolfers);
+
+	unrestrictedGolfers.forEach((golfer, i) => {
+		if (!timeTestPassed) {
 			if (groupNum === 0) {
 				group.golferOne = golfer;
 				// golfersArray.splice(i, 1);
 				groupNum++;
-				if (i === golfersArray.length) {
+				if (i === unrestrictedGolfers.length) {
 					teeTimes.push(group);
 				}
 			} else if (groupNum === 1) {
 				group.golferTwo = golfer;
 				// golfersArray.splice(i, 1);
 				groupNum++;
-				if (i === golfersArray.length) {
+				if (i === unrestrictedGolfers.length) {
 					teeTimes.push(group);
 				}
 			} else if (groupNum === 2) {
 				group.golferThree = golfer;
 				// golfersArray.splice(i, 1);
 				groupNum++;
-				if (i === golfersArray.length) {
+				if (i === unrestrictedGolfers.length) {
 					teeTimes.push(group);
 				}
 			} else if (groupNum === 3) {
@@ -156,12 +197,61 @@ function generateSchedule(golfers, schedule, course) {
 				teeTimes.push(group);
 				currTime = addTimeInterval(currTime, interval);
 				console.log(currTime);
-				group = { teeTime: currTime };
-				groupNum = 0;
-				console.log('reset');
+				const timeTest = testTime(currTime);
+				if (timeTest) {
+					timeTestPassed = true;
+					console.log('It is Passed 4:30');
+				} else {
+					group = { teeTime: currTime };
+					groupNum = 0;
+					console.log('reset');
+				}
 			}
 		}
 	});
+
+	//Once it is passed 4:30, there should be a check to remove golfers from the unrestricted array from the pool of players in that array. Then it should combine that array with the teeTimeRestriction array to create the final array.
+
+	// golfersArray.forEach((golfer, i) => {
+	// 	console.log('Golfer: ', golfer, i);
+	// 	if (golfer.teeTime) {
+	// 		console.log('Tee Time Restriction');
+	// 		//Removes that golfer for now
+	// 		restrictedGolfers.push(golfer);
+	// 	} else {
+	// 		if (groupNum === 0) {
+	// 			group.golferOne = golfer;
+	// 			// golfersArray.splice(i, 1);
+	// 			groupNum++;
+	// 			if (i === golfersArray.length) {
+	// 				teeTimes.push(group);
+	// 			}
+	// 		} else if (groupNum === 1) {
+	// 			group.golferTwo = golfer;
+	// 			// golfersArray.splice(i, 1);
+	// 			groupNum++;
+	// 			if (i === golfersArray.length) {
+	// 				teeTimes.push(group);
+	// 			}
+	// 		} else if (groupNum === 2) {
+	// 			group.golferThree = golfer;
+	// 			// golfersArray.splice(i, 1);
+	// 			groupNum++;
+	// 			if (i === golfersArray.length) {
+	// 				teeTimes.push(group);
+	// 			}
+	// 		} else if (groupNum === 3) {
+	// 			group.golferFour = golfer;
+	// 			// golfersArray.splice(i, 1);
+	// 			teeTimes.push(group);
+	// 			currTime = addTimeInterval(currTime, interval);
+	// 			console.log(currTime);
+	// 			group = { teeTime: currTime };
+	// 			groupNum = 0;
+	// 			console.log('reset');
+	// 		}
+	// 	}
+	// });
 
 	// while (let i = 0; i < initialLength; i++) {
 	// 	console.log('Golfer: ', golfersArray[i]);
@@ -204,7 +294,9 @@ function generateSchedule(golfers, schedule, course) {
 	// 	}
 
 	// }
-	console.log(teeTimes);
+
+	// console.log('Ending Arrar: ', golfersArray);
+	console.log('Tee times: ', teeTimes);
 
 	return teeTimes;
 }
