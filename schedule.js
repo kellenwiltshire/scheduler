@@ -16,10 +16,7 @@ Probable Steps:
 
 Layout of Final Array Objects:
 Tee Time: TIME
-GolferOne: NAME
-GolferTwo: NAME
-GolferThree: NAME
-GolferFour: NAME
+golfers: [golfer1, 2, 3, 4]
 
 */
 
@@ -56,10 +53,7 @@ const randomizeGolfers = (golfers) => {
 		currentIndex--;
 
 		//and swap it with the current element
-		[golfers[currentIndex], golfers[randomIndex]] = [
-			golfers[randomIndex],
-			golfers[currentIndex],
-		];
+		[golfers[currentIndex], golfers[randomIndex]] = [golfers[randomIndex], golfers[currentIndex]];
 	}
 
 	return golfers;
@@ -99,13 +93,7 @@ const addTimeInterval = (currTime, interval) => {
 		minutes -= 60 * h;
 	}
 
-	return (
-		('0' + hours).slice(-2) +
-		':' +
-		('0' + minutes).slice(-2) +
-		':' +
-		('0' + seconds).slice(-2)
-	);
+	return ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
 };
 
 const testTime = (time) => {
@@ -135,6 +123,13 @@ const testTime = (time) => {
 	}
 };
 
+const filterArray = (arr1, arr2) => {
+	const filtered = arr1.filter((el) => {
+		return arr2.indexOf(el) === -1;
+	});
+	return filtered;
+};
+
 generateSchedule(golfers, schedule, course);
 
 function generateSchedule(golfers, schedule, course) {
@@ -145,68 +140,78 @@ function generateSchedule(golfers, schedule, course) {
 	let teeTimes = [];
 	let currTime = schedule.startTime;
 	let interval = course.interval;
-	let group = { teeTime: currTime };
+	let group = { teeTime: currTime, golfers: [] };
 	let groupNum = 0;
 
 	let teeTimeRestrictions = [];
-	let carpoolRestrictions = [];
 	let unrestrictedGolfers = [];
+
+	let newGolferArray = [];
 
 	let timeTestPassed = false;
 
 	golfersArray.forEach((golfer) => {
 		if (golfer.teeTime) {
 			teeTimeRestrictions.push(golfer);
-		} else if (golfer.carpool) {
-			carpoolRestrictions.push(golfer);
 		} else {
 			unrestrictedGolfers.push(golfer);
 		}
 	});
 
 	console.log('Tee Time: ', teeTimeRestrictions);
-	console.log('carpool: ', carpoolRestrictions);
 	console.log('Unrestricted: ', unrestrictedGolfers);
+
+	// while (!timeTestPassed) {}
 
 	unrestrictedGolfers.forEach((golfer, i) => {
 		if (!timeTestPassed) {
-			if (groupNum === 0) {
-				group.golferOne = golfer;
-				// golfersArray.splice(i, 1);
+			if (groupNum < 3) {
+				console.log('Added to Array');
+				newGolferArray.push(golfer);
 				groupNum++;
-				if (i === unrestrictedGolfers.length) {
-					teeTimes.push(group);
-				}
-			} else if (groupNum === 1) {
-				group.golferTwo = golfer;
-				// golfersArray.splice(i, 1);
-				groupNum++;
-				if (i === unrestrictedGolfers.length) {
-					teeTimes.push(group);
-				}
-			} else if (groupNum === 2) {
-				group.golferThree = golfer;
-				// golfersArray.splice(i, 1);
-				groupNum++;
-				if (i === unrestrictedGolfers.length) {
-					teeTimes.push(group);
-				}
 			} else if (groupNum === 3) {
-				group.golferFour = golfer;
-				// golfersArray.splice(i, 1);
-				teeTimes.push(group);
+				console.log('Added to Array');
+				newGolferArray.push(golfer);
 				currTime = addTimeInterval(currTime, interval);
 				console.log(currTime);
 				const timeTest = testTime(currTime);
 				if (timeTest) {
 					timeTestPassed = true;
 					console.log('It is Passed 4:30');
+					const combineArray = teeTimeRestrictions.concat(unrestrictedGolfers);
+					console.log('Combine Array: ', combineArray);
+					const filteredArray = filterArray(combineArray, newGolferArray);
+					const randomFilteredArray = randomizeGolfers(filteredArray);
+					newGolferArray = newGolferArray.concat(randomFilteredArray);
 				} else {
-					group = { teeTime: currTime };
 					groupNum = 0;
 					console.log('reset');
 				}
 			}
+		}
+	});
+
+	console.log('New Golfer Array: ', newGolferArray);
+
+	groupNum = 0;
+
+	console.log('Length: ', newGolferArray.length);
+
+	newGolferArray.forEach((golfer, i) => {
+		if (groupNum < 3) {
+			group.golfers.push(golfer);
+			groupNum++;
+			if (i === newGolferArray.length - 1) {
+				teeTimes.push(group);
+			}
+		} else {
+			group.golfers.push(golfer);
+			currTime = addTimeInterval(currTime, interval);
+			console.log(currTime);
+			teeTimes.push(group);
+			group = { teeTime: currTime, golfers: [] };
+			groupNum = 0;
+			console.log('reset');
 		}
 	});
 
