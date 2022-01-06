@@ -242,8 +242,6 @@ function generateSchedule(golfers, schedule, course) {
 		}
 	});
 
-	console.log('New Golfer Array: ', newGolferArray);
-
 	//Reset the variables
 	groupNum = 0;
 	currTime = schedule.startTime;
@@ -253,9 +251,7 @@ function generateSchedule(golfers, schedule, course) {
 	for (let i = 0; i < newGolferArray.length; i++) {
 		let name = '';
 		if (newGolferArray[i].carpool) {
-			console.log('Carpool Found: ', newGolferArray[i]);
 			name = newGolferArray[i].carpool;
-			console.log('Carpool Name: ', name);
 			const golferIndex = newGolferArray.findIndex((obj) => {
 				if (obj.name === name) {
 					return true;
@@ -263,7 +259,6 @@ function generateSchedule(golfers, schedule, course) {
 
 				return false;
 			});
-			console.log('Golfer Index: ', golferIndex);
 
 			if (golferIndex > i) {
 				if (golferIndex > i + 11) {
@@ -271,7 +266,6 @@ function generateSchedule(golfers, schedule, course) {
 					const golferMoving = newGolferArray[golferIndex];
 					newGolferArray.splice(golferIndex, 1);
 					newGolferArray.splice(newPosition + i, 0, golferMoving);
-					console.log('MOVED: ', golferMoving);
 				}
 			}
 		}
@@ -290,11 +284,9 @@ function generateSchedule(golfers, schedule, course) {
 		} else {
 			group.golfers.push(golfer);
 			currTime = addTimeInterval(currTime, interval);
-			console.log(currTime);
 			finalTeeTimeArray.push(group);
 			group = { teeTime: currTime, golfers: [] };
 			groupNum = 0;
-			console.log('reset');
 		}
 	});
 
