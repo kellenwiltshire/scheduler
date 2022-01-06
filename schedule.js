@@ -250,6 +250,35 @@ function generateSchedule(golfers, schedule, course) {
 
 	//Before setting final tee times will need to iterate through array and look for car pooling people. Once one is found, will need to find the matching person and splice them out of their current position (unless within 1-12 golfers away from original person) and splice them back in at a random interval (1-12) from original golfer to make sure they are within 3 tee times of eachother
 
+	for (let i = 0; i < newGolferArray.length; i++) {
+		let name = '';
+		if (newGolferArray[i].carpool) {
+			console.log('Carpool Found: ', newGolferArray[i]);
+			name = newGolferArray[i].carpool;
+			console.log('Carpool Name: ', name);
+			const golferIndex = newGolferArray.findIndex((obj) => {
+				if (obj.name === name) {
+					return true;
+				}
+
+				return false;
+			});
+			console.log('Golfer Index: ', golferIndex);
+
+			if (golferIndex > i) {
+				if (golferIndex > i + 11) {
+					const newPosition = Math.floor(Math.random() * 11);
+					const golferMoving = newGolferArray[golferIndex];
+					newGolferArray.splice(golferIndex, 1);
+					newGolferArray.splice(newPosition + i, 0, golferMoving);
+					console.log('MOVED: ', golferMoving);
+				}
+			}
+		}
+	}
+
+	console.log('New Golfer Array: ', newGolferArray);
+
 	//Finally iterate through the golfer array and place them in their tee time slots.
 	newGolferArray.forEach((golfer, i) => {
 		if (groupNum < 3) {
