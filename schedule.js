@@ -248,6 +248,8 @@ function generateSchedule(golfers, schedule, course) {
 	groupNum = 0;
 	currTime = schedule.startTime;
 
+	//Before setting final tee times will need to iterate through array and look for car pooling people. Once one is found, will need to find the matching person and splice them out of their current position (unless within 1-12 golfers away from original person) and splice them back in at a random interval (1-12) from original golfer to make sure they are within 3 tee times of eachother
+
 	//Finally iterate through the golfer array and place them in their tee time slots.
 	newGolferArray.forEach((golfer, i) => {
 		if (groupNum < 3) {
